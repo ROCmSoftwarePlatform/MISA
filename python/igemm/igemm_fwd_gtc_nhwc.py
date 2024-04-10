@@ -215,7 +215,7 @@ class igemm_fwd_gtc_nhwc_t(mc_base_t):
         return self._get_deferred()
 
     def is_accvgpr_unified(self):
-        return IGEMM_FWD_GTC_NHWC_ACCVGPR_UNIFIED and self.mc.arch_config.arch in (AMDGPU_ARCH_GFX90A, AMDGPU_ARCH_GFX940) \
+        return IGEMM_FWD_GTC_NHWC_ACCVGPR_UNIFIED and self.mc.arch_config.arch in (AMDGPU_ARCH_GFX90A, AMDGPU_ARCH_GFX940, AMDGPU_ARCH_GFX942) \
                 and not (self.tunable.gemm_m_per_block == 256 and self.tunable.gemm_n_per_block == 256)
 
     class macro_set_flag_nhw(macro_base_t):
@@ -917,7 +917,7 @@ class igemm_fwd_gtc_nhwc_t(mc_base_t):
                 v_c_needed              = (v_c_coalescing_num - v_c_resuable_num) if (v_c_coalescing_num - v_c_resuable_num) > 0 else 0
 
                 v_c_needed              = v_c_needed if v_c_needed > 0 else 0  # let at least 0
-                if self.mc.arch_config.arch in (AMDGPU_ARCH_GFX90A, AMDGPU_ARCH_GFX940):
+                if self.mc.arch_config.arch in (AMDGPU_ARCH_GFX90A, AMDGPU_ARCH_GFX940, AMDGPU_ARCH_GFX942):
                     v_c_needed          = (v_c_needed + 3) // 4 * 4     # round to 4x
                 self.v_c                = sym_t("v_c"            ,vseq(v_c_needed), f"coalescing:{v_c_coalescing_num}, needed:{v_c_needed}, resuable:{v_c_resuable_num}")
 
@@ -993,7 +993,7 @@ class igemm_fwd_gtc_nhwc_t(mc_base_t):
             total_vgpr                  = vseq()
             self.accum_start            = 0
             if outer.tunable.fma_type == IGEMM_GTC_TUNABLE_FMA_TYPE_XDLOPS:
-                if self.mc.arch_config.arch in (AMDGPU_ARCH_GFX90A, AMDGPU_ARCH_GFX940):
+                if self.mc.arch_config.arch in (AMDGPU_ARCH_GFX90A, AMDGPU_ARCH_GFX940, AMDGPU_ARCH_GFX942):
                     total_vgpr          = (total_vgpr + 3) // 4 * 4 # round to multiply of 4
                     self.accum_start    = total_vgpr
                     total_vgpr          = total_vgpr + outer.tunable.num_agpr_accumulate_c
@@ -1377,10 +1377,10 @@ class igemm_fwd_gtc_nhwc_t(mc_base_t):
                 'kernarg_segment_byte_size'         :   self.karg.get_count(),
                 'wavefront_sgpr_count'              :   self.sgpr.get_count() + 2*3,
                 'workitem_vgpr_count'               :   self.vgpr.get_count()}
-        if self.mc.arch_config.arch in (AMDGPU_ARCH_GFX90A, AMDGPU_ARCH_GFX940):
+        if self.mc.arch_config.arch in (AMDGPU_ARCH_GFX90A, AMDGPU_ARCH_GFX940, AMDGPU_ARCH_GFX942):
             assert self.vgpr.get_accum_start() % 4 == 0
             kernel_code_dict['accum_offset']        =   self.vgpr.get_accum_start()
-        if self.mc.arch_config.arch == AMDGPU_ARCH_GFX940:
+        if self.mc.arch_config.arch == AMDGPU_ARCH_GFX940 or self.mc.arch_config.arch == AMDGPU_ARCH_GFX942:
             kernel_code_dict['amdhsa_float_round_mode_32']      =   3
             kernel_code_dict['amdhsa_float_round_mode_16_64']   =   3
             kernel_code_dict['amdhsa_dx10_clamp']               =   1
