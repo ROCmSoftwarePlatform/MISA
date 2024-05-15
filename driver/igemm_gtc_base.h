@@ -153,10 +153,10 @@ static inline std::string get_igemm_gtc_fma_type(std::string arch_string, const 
             return IGEMM_GTC_TUNABLE_FMA_TYPE_MAC;
         if(arch_string == "gfx906" || arch_string == "gfx1030")
             return IGEMM_GTC_TUNABLE_FMA_TYPE_DLOPS;
-        if(arch_string == "gfx908" || arch_string == "gfx90a" || arch_string == "gfx940")
+        if(arch_string == "gfx908" || arch_string == "gfx90a" || arch_string == "gfx940" || arch_string == "gfx942")
             return IGEMM_GTC_TUNABLE_FMA_TYPE_DLOPS;
     }else if(sec.count("wave_tile_m") > 0 && sec.count("wave_tile_n") > 0){
-        assert(arch_string == "gfx908" || arch_string == "gfx90a" || arch_string == "gfx940");
+        assert(arch_string == "gfx908" || arch_string == "gfx90a" || arch_string == "gfx940" || arch_string == "gfx942");
         return IGEMM_GTC_TUNABLE_FMA_TYPE_XDLOPS;
     }
     return IGEMM_GTC_TUNABLE_FMA_TYPE_NA;
@@ -230,6 +230,27 @@ igemm_gtc_tunable_from_config(const config_content_t &content) {
     return tunables;
 }
 
+static inline int get_gcn_arch(char* archname)
+{
+    int gcn_arch = 1000;
+    if (!strncmp("gfx908", archname, 6)){
+        gcn_arch = 908;
+    }
+    else if (!strncmp("gfx90a", archname, 6)){
+        gcn_arch = 910;
+    }
+    else if (!strncmp("gfx940", archname, 6)){
+        gcn_arch = 940;
+    }
+    else if (!strncmp("gfx941", archname, 6)){
+        gcn_arch = 941;
+    }
+    else if (!strncmp("gfx942", archname, 6)){
+        gcn_arch = 942;
+    }
+    return gcn_arch;
+}
+
 static inline std::string
 igemm_gtc_encode_kernel_name(const igemm_gtc_tunable_t *tunable) {
     auto tensor_layout            = tunable->tensor_layout;
@@ -268,7 +289,7 @@ igemm_gtc_encode_kernel_name(const igemm_gtc_tunable_t *tunable) {
         hipDevice_t dev;
         HIP_CALL(hipGetDevice(&dev));
         HIP_CALL(hipGetDeviceProperties(&dev_prop, dev));
-        gcn_arch = dev_prop.gcnArch;
+        gcn_arch = get_gcn_arch(dev_prop.gcnArchName);
     }
 
     std::string kernel_name = std::string("igemm_") + direction + "_";
@@ -284,7 +305,7 @@ igemm_gtc_encode_kernel_name(const igemm_gtc_tunable_t *tunable) {
             kernel_name += "gtcx_";
         else if(gcn_arch == 910)
             kernel_name += "gtcx2_";
-        else if(gcn_arch == 940)
+        else if(gcn_arch == 940 || gcn_arch == 941 || gcn_arch == 942)
             kernel_name += "gtcx3_";
     }
     std::string vector_c_str = "";
@@ -603,7 +624,7 @@ public:
         HIP_CALL(hipGetDevice(&dev));
         HIP_CALL(hipGetDeviceProperties(&dev_prop, dev));
         this->num_cu = dev_prop.multiProcessorCount;
-        this->gcn_arch = dev_prop.gcnArch;
+        gcn_arch = get_gcn_arch(dev_prop.gcnArchName);
         if(this->gcn_arch >= 1000)
             this->num_cu *= 2;
         max_mpb = -1;

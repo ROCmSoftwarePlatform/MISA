@@ -153,13 +153,15 @@ static inline double get_theoritical_gpu_gflops(int sclk_mhz, driverDataType_t d
     HIP_CALL(hipGetDevice(&dev));
     HIP_CALL(hipGetDeviceProperties(&dev_prop, dev));
     num_cu = dev_prop.multiProcessorCount;
-    gcn_arch = dev_prop.gcnArch;
+    gcn_arch = get_gcn_arch(dev_prop.gcnArchName);
     if(gcn_arch >= 1000)
         num_cu *= 2;
 
     int fp_factor = 1;
     if(data_type == driverHalf){
-        if(gcn_arch == 908 || gcn_arch == 910)
+        if(gcn_arch == 942 || gcn_arch == 941 || gcn_arch == 940)
+            fp_factor = 8;  // xdlops
+        else if(gcn_arch == 908 || gcn_arch == 910)
             fp_factor = 4;  // xdlops
         else
             fp_factor = 2;  // dlops
@@ -167,7 +169,9 @@ static inline double get_theoritical_gpu_gflops(int sclk_mhz, driverDataType_t d
             fp_factor = 2;
     }
     if(data_type == driverInt8){
-        if(gcn_arch == 908 || gcn_arch == 910)
+        if(gcn_arch == 942 || gcn_arch == 941 || gcn_arch == 940)
+            fp_factor = 8;  // xdlops
+        else if(gcn_arch == 908 || gcn_arch == 910)
             fp_factor = 4;  // xdlops
         else
             fp_factor = 4;  // dlops
@@ -181,7 +185,7 @@ static inline double get_theoritical_gpu_gflops(int sclk_mhz, driverDataType_t d
     //     fp_factor = 4;
     // }
 
-    if(gcn_arch == 908 || gcn_arch == 910){
+    if(gcn_arch == 908 || gcn_arch == 910 || gcn_arch == 942 || gcn_arch == 941 || gcn_arch == 940){
         num_simd = 4 * 32 ; // 4x miSIMD, 32x mac unit
     }
 

@@ -261,6 +261,13 @@ double get_nrms(std::string direction, driverDataType_t driver_data_type){
             return 8.2e-3;
 #endif
         }
+        else if (driver_data_type == driverBFloat16){
+#ifdef USE_XDNN
+            return 5*8.2e-3;
+#else
+            return 8.2e-3;
+#endif
+        }
     };
     double nrms = basic_tolerance();
     if (direction == "bwd"){
@@ -273,6 +280,9 @@ double get_nrms(std::string direction, driverDataType_t driver_data_type){
             nrms = 0.01;
         }
         else if(driver_data_type == driverHalf){
+            nrms *= 5;
+        }
+        else if(driver_data_type == driverBFloat16){
             nrms *= 5;
         }
     }

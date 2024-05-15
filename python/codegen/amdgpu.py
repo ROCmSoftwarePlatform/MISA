@@ -46,6 +46,7 @@ AMDGPU_ARCH_GFX906      = 906
 AMDGPU_ARCH_GFX908      = 908
 AMDGPU_ARCH_GFX90A      = 910
 AMDGPU_ARCH_GFX940      = 940
+AMDGPU_ARCH_GFX942      = 942
 AMDGPU_ARCH_GFX1030     = 1030
 
 AMDGPU_WAVE_SIZE        = 64
@@ -73,6 +74,8 @@ def amdgpu_string_to_arch(amdgpu_arch_string):
         return AMDGPU_ARCH_GFX90A
     if amdgpu_arch_string == 'gfx940':
         return AMDGPU_ARCH_GFX940
+    if amdgpu_arch_string == 'gfx942':
+        return AMDGPU_ARCH_GFX942
     if amdgpu_arch_string == 'gfx1030':
         return AMDGPU_ARCH_GFX1030
     assert False
@@ -88,6 +91,8 @@ def amdgpu_arch_to_string(amdgpu_arch_gfxxxx):
         return 'gfx90a'
     if amdgpu_arch_gfxxxx == AMDGPU_ARCH_GFX940:
         return 'gfx940'
+    if amdgpu_arch_gfxxxx == AMDGPU_ARCH_GFX942:
+        return 'gfx942'
     if amdgpu_arch_gfxxxx == AMDGPU_ARCH_GFX1030:
         return 'gfx1030'
     assert False
@@ -282,7 +287,7 @@ class amdgpu_arch_config_t(object):
         if self.arch == AMDGPU_ARCH_GFX906:
             self.use_dlops  = ad('use_dlops', True)
             self.use_xdlops = ad('use_xdlops', False)
-        elif self.arch in (AMDGPU_ARCH_GFX908, AMDGPU_ARCH_GFX90A, AMDGPU_ARCH_GFX940):
+        elif self.arch in (AMDGPU_ARCH_GFX908, AMDGPU_ARCH_GFX90A, AMDGPU_ARCH_GFX940, AMDGPU_ARCH_GFX942):
             self.use_dlops  = ad('use_dlops', False)
             self.use_xdlops = ad('use_xdlops', True)
         elif self.arch == AMDGPU_ARCH_GFX1030:
@@ -537,7 +542,7 @@ class amd_kernel_code_t(mc_base_t):
                     self._emit('.amdhsa_float_denorm_mode_16_64 {}'.format(         self.ki.kernel_code.amdhsa_float_denorm_mode_16_64))
                 if self.ki.kernel_code.amdhsa_fp16_overflow:
                     self._emit('.amdhsa_fp16_overflow {}'.format(                   self.ki.kernel_code.amdhsa_fp16_overflow))
-                if self.mc.arch_config.arch in (AMDGPU_ARCH_GFX90A, AMDGPU_ARCH_GFX940):
+                if self.mc.arch_config.arch in (AMDGPU_ARCH_GFX90A, AMDGPU_ARCH_GFX940, AMDGPU_ARCH_GFX942):
                     self._emit('.amdhsa_tg_split {}'.format(                        self.ki.kernel_code.tg_split))
                     self._emit('.amdhsa_accum_offset {}'.format(                    self.ki.kernel_code.accum_offset))
                 if self.mc.arch_config.arch >= 1000:
