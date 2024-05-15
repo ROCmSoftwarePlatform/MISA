@@ -881,14 +881,14 @@ class igemm_coalescing_store_xdlops_t(mc_base_t):
             then, consider that introduced by granularity
             '''
             self._emit(f"v_lshrrev_b32 v[{v_tmp4}], {utility_log2(ctrl.cxm.lanegroup_m_per_thread())}, v[{v_gemm_im}]")
-            self._emit(f"v_and_b32 v[{v_tmp4}],  {ctrl.cxm.lanegroup_m_per_cluster() - 1} v[{v_tmp4}]   ; thread id of lanegroup_m_per_cluster")
+            self._emit(f"v_and_b32 v[{v_tmp4}],  {ctrl.cxm.lanegroup_m_per_cluster() - 1}, v[{v_tmp4}]   ; thread id of lanegroup_m_per_cluster")
             self._emit(f"v_lshlrev_b32 v[{v_co_sst}], {utility_log2(ctrl.cxm.lanegroup_m_per_thread())}, v[{v_tmp4}]")
 
             if ctrl.cxm.block_m_per_lanegroup() != 1:
                 length_above_block_m_per_lanegroup = ctrl.cxm.lanegroup_m_per_block() * ctrl.cxm.lanegroup_m_per_cluster() * \
                                                     ctrl.cxm.lanegroup_m_per_thread()
                 self._emit(f"v_lshrrev_b32 v[{v_tmp4}+1], {utility_log2(length_above_block_m_per_lanegroup)}, v[{v_gemm_im}]")
-                self._emit(f"v_and_b32 v[{v_tmp4}+1], {ctrl.cxm.block_m_per_lanegroup() - 1}  , v[{v_tmp4}+1]   ; thread id of block_m_per_lanegroup")
+                self._emit(f"v_and_b32 v[{v_tmp4}+1], {ctrl.cxm.block_m_per_lanegroup() - 1}, v[{v_tmp4}+1]   ; thread id of block_m_per_lanegroup")
                 assert length_above_block_m_per_lanegroup % g_mb == 0, f"length_above_block_m_per_lanegroup:{length_above_block_m_per_lanegroup}, g_mb:{g_mb}"
                 self._emit(f"v_lshl_or_b32 v[{v_co_sst}], v[{v_tmp4}+1], {utility_log2(length_above_block_m_per_lanegroup // g_mb)}, v[{v_co_sst}]")
 
