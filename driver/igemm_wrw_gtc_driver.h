@@ -289,7 +289,7 @@ public:
         }
         else{
             if(data_byte == 2){
-                if(c % tunable->tensor_b_thread_lengths[3] != 0){
+                if((c / group) % tunable->tensor_b_thread_lengths[3] != 0){
                     return false;
                 }
             }
