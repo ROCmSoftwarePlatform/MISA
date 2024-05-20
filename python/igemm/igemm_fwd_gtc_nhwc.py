@@ -2143,7 +2143,7 @@ class igemm_fwd_gtc_nhwc_t(mc_base_t):
             self._emit(f"s_mul_i32 s[{s.s_tmp(5)}], s[{s.s_tmp(5)}], s[{s.s_dilation_h()}]")                # s_dilation_h * in_stride_hi
             self._emit(f"s_mul_i32 s[{s.s_tmp(2)}], s[{s.s_tmp(0)}], s[{s.s_move_slice_k_x()}]")            # s_move_slice_k_x * s_dilation_w * in_stride_wi
             self._emit(f"s_lshl_b32 s[{s.s_tmp(1)}], s[{s.s_move_slice_k_c()}], {igemm_log2(data_byte)}")   # s_move_slice_k_c * data_byte 
-            self._emit(f"s_mul_i32 s[{s.s_tmp(0)}], s[{s.s_diff_in_ihi_acc_y()}], s[{s.s_tmp(5)}]")         # s_move_slice_k_y * s_dilation_h * in_stride_hi
+            self._emit(f"s_mul_i32 s[{s.s_tmp(0)}], s[{s.s_move_slice_k_y()}], s[{s.s_tmp(5)}]")            # s_move_slice_k_y * s_dilation_h * in_stride_hi
             self._emit(f"s_add_u32 s[{s.s_diff_in_os_acc_y_x_c()}], s[{s.s_tmp(0)}], s[{s.s_tmp(1)}]")
             self._emit(f"s_add_u32 s[{s.s_diff_in_os_acc_y_x_c()}], s[{s.s_diff_in_os_acc_y_x_c()}], s[{s.s_tmp(2)}]")
             self._emit(f"s_mul_i32 s[{s.s_tmp(0)}], s[{s.s_diff_in_iwi_ovf_x()}], s[{s.s_in_stride_wi()}]") # s_x * s_dilation_w * in_stride_wi
