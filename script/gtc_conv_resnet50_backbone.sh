@@ -29,7 +29,7 @@ if [[  "${LAYOUT}" = "nchw" ]] ; then
     LAYOUT_ARG=""
 elif [[  "${LAYOUT}" = "nhwc" ]] ; then
     LAYOUT_HSACO="_nhwc"
-    LAYOUT_ARG="--in_layout NHWC --fil_layout NHWC --out_layout NHWC"
+    LAYOUT_ARG="--in_layout NHWC --fil_layout NHWC --out_layout NHWC -V 0"
 elif [[  "${LAYOUT}" = "nchwc_kcyxc" ]] ; then
     LAYOUT_HSACO="_nchwc"
     LAYOUT_ARG="--in_layout NCHWC --fil_layout NCHWC --out_layout NCHWC"
@@ -61,7 +61,7 @@ else
     exit 1
 fi
 
-if [ "${ARCH}" != "gfx90a" ] && [ "${ARCH}" != "gfx908" ] && [ "${ARCH}" != "gfx1030" ] && [ "${ARCH}" != "gfx940" ]; then
+if [ "${ARCH}" != "gfx90a" ] && [ "${ARCH}" != "gfx908" ] && [ "${ARCH}" != "gfx1030" ] && [ "${ARCH}" != "gfx940" ] && [ "${ARCH}" != "gfx942" ] ; then
     echo "wrong arch: ${ARCH}"
     exit 1
 fi
